@@ -1,6 +1,7 @@
 # Marketplace
 
 VELO DARIO 331CA
+
 Scopul temei este sa gasim metode de sincronizare pentru a diferentia actiunile Producatorului si 
 Consumatorului in modul in care folosesc Produsele. Pentru aceasta metoda m-am gandit sa folosesc semafoare. Un Semaphore 
 mentine un contor intern care este decrementat de un apel acquire() si incrementat de un apel release(). Metoda acquire() nu va 
