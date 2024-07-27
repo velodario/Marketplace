@@ -8,6 +8,8 @@ March 2021
 
 from threading import Thread
 import time
+import logging
+
 
 
 class Consumer(Thread):
@@ -32,31 +34,31 @@ class Consumer(Thread):
         :type kwargs:
         :param kwargs: other arguments that are passed to the Thread's __init__()
         """
-        super().__init__(**kwargs)
+        Thread.__init__(self, **kwargs)
         self.carts = carts
         self.marketplace = marketplace
         self.retry_wait_time = retry_wait_time
 
     def run(self):
-        consumer_id = self.marketplace.new_cart()  # get id for the consumer
-        for consumer in self.carts:
-            for action in consumer:
+        id_consumer = self.marketplace.new_cart()  # get id for consumer
+        for consumers in self.carts:
+            for action in consumers:
                 quantity_product = 0
-                # while the quantity does not exceed the limit
+                # while not exceeding the quantity
                 while action['quantity'] > quantity_product:
                     if action['type'] == "add":
-                        if self.marketplace.add_to_cart(consumer_id, action['product']):
+                        check_add = self.marketplace.add_to_cart(
+                            id_consumer, action['product'])
+                        if check_add is True:
                             quantity_product += 1
                         else:
-                            self.marketplace.logging.error(
+                            logging.error(
                                 '{} failed to add to cart, retrying wait'.format(action['product']))
                             time.sleep(self.retry_wait_time)
-                    elif action['type'] == "remove":
-                        self.marketplace.remove_from_cart(consumer_id, action['product'])
+                    if action['type'] == "remove":
+                        self.marketplace.remove_from_cart(
+                            id_consumer, action['product'])
                         quantity_product += 1
 
-        cart_list = self.marketplace.place_order(consumer_id)
-        self.marketplace.print_order.acquire()
-        for product in cart_list:
-            print(self.name, "bought", product)
-        self.marketplace.print_order.release()
+        logging.info('order placed {}'.format(
+            self.marketplace.place_order(id_consumer)))

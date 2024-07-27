@@ -1,20 +1,13 @@
 # Marketplace
 
-VELO DARIO 331CA
+# Overview
+The purpose of this project is to find synchronization methods to differentiate the actions of Producers and Consumers in how they use Products. For this method, I have chosen to use semaphores. A Semaphore maintains an internal counter that is decremented by a call to acquire() and incremented by a call to release(). The acquire() method will not allow the counter to decrement below 0, blocking the thread's execution in this case until the counter is incremented by a release(). Initially, I used two semaphores, one for the Consumer and one for the Producer. These semaphores, initialized with 1, will identify these components by IDs.
 
-Scopul temei este sa gasim metode de sincronizare pentru a diferentia actiunile Producatorului si 
-Consumatorului in modul in care folosesc Produsele. Pentru aceasta metoda m-am gandit sa folosesc semafoare. Un Semaphore 
-mentine un contor intern care este decrementat de un apel acquire() si incrementat de un apel release(). Metoda acquire() nu va 
-permite decrementarea contorului sub valoarea 0, ea blocand executia thread-ului in acest caz pana cand contorul este 
-incrementat de un release(). Am folosit initial 2 semafoare, unul pentru Consumator si unul pentru Producator.Aceste semafoare 
-initializate cu 1, ii vor identifica acesti componenti prin id-uri. In acest fel, in momentul in care un Producator intra in 
-flow, el va primi id,iar apoi va continua sa isi publice produsele, conform conditiile de asteptare daca esuaza. Daca un produs 
-este adaugat cu succes, el ii se va alatura unui dictionar cu cheie id-ul si valoare un append la fiecare produs publicat pentru 
-acest producator + disponibilitatea produsului. Disponibilitatea produsului la producator difera pe baza actiunilor 
-consumatorului in marketplace. Si consumatorii au dictionarul lor, avand ca cheie id si valoare o lista de produse.Daca un 
-consumator adauga un produs in cartul lui, in lista lui se va adauga acest produs, iar in dictionarul de producator acest 
-produs nu va mai fi disponibil. Pentru disponibilitate am initializat o variabila de tip bool. Un alt semafor este folosit in 
-momentul in care sunt afisate produsele finale unui consumator. Motivul pentru acesta este pentru ca in fisierele cu input mare, 
-existau cazuri de race condition si produsele nu erau afisate cum trebuie. Am folosit logging aproape in fiecare functie, pentru 
-a urmari rezultatele din ambele clase cu extensia .info si cazurile delicate de erori cu extensia .error. Fisierele de log sunt 
-impartite cu un maxBytes=100000.
+# Producer
+When a Producer enters the flow, it will receive an ID and then proceed to publish its products, adhering to wait conditions if it fails. If a product is successfully added, it will be added to a dictionary with the key being the producer's ID and the value being an appended list of each published product for this producer, along with the product's availability. The product's availability differs based on the Consumer's actions in the marketplace.
+
+# Consumer
+Consumers have their own dictionary, with the key being the consumer's ID and the value being a list of products. If a Consumer adds a product to their cart, this product will be added to their list, and in the producer's dictionary, this product will no longer be available. For availability, I initialized a boolean variable.
+
+# Synchronization
+Another semaphore is used when displaying the final products to a Consumer. This is necessary because, in files with large inputs, there were race condition cases, and the products were not displayed correctly. Logging is used extensively in almost every function to track results from both classes, with the .info extension for standard operations and the .error extension for error cases. The log files are split with a maxBytes=100000.

@@ -5,8 +5,11 @@ Computer Systems Architecture Course
 Assignment 1
 March 2021
 """
+
 from threading import Thread
 import time
+import logging
+
 
 
 class Producer(Thread):
@@ -35,19 +38,18 @@ class Producer(Thread):
         self.products = products
         self.marketplace = marketplace
         self.republish_wait_time = republish_wait_time
-        self.kwargs = kwargs
 
     def run(self):
-        id_producer = self.marketplace.register_producer()  # primesc id pentru producator
+        id_producer = self.marketplace.register_producer()  # get id for producer
         while True:
-            for prod_id in self.products:  # pentru fiecare product
-                # pentru fiecare numar de cantitate
+            for prod_id in self.products:  # for each product
+                # for each quantity
                 for _ in range(0, prod_id[1]):
-                    # publicare produs in marketplace
+                    # publish product in marketplace
                     check = self.marketplace.publish(id_producer, prod_id[0])
                     if check is True:
                         time.sleep(prod_id[2])
                     else:
-                        self.marketplace.logging.error(
+                        logging.error(
                             '{} product failed to publish, retrying republish'.format(prod_id[0]))
                         time.sleep(self.republish_wait_time)
