@@ -5,8 +5,6 @@ Computer Systems Architecture Course
 Assignment 1
 March 2021
 """
-#heloooo
-
 
 from threading import Thread
 import time
@@ -34,33 +32,30 @@ class Consumer(Thread):
         :type kwargs:
         :param kwargs: other arguments that are passed to the Thread's __init__()
         """
-        Thread.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self.carts = carts
         self.marketplace = marketplace
         self.retry_wait_time = retry_wait_time
 
     def run(self):
-        id_consumer = self.marketplace.new_cart()  # primesc id pentru consumator
-        for consumers in self.carts:
-            for action in consumers:
-                cantintate_product = 0
-                # atata timp cat nu depasim cantitatea
-                while action['quantity'] > cantintate_product:
+        consumer_id = self.marketplace.new_cart()  # get id for the consumer
+        for consumer in self.carts:
+            for action in consumer:
+                quantity_product = 0
+                # while the quantity does not exceed the limit
+                while action['quantity'] > quantity_product:
                     if action['type'] == "add":
-                        check_add = self.marketplace.add_to_cart(
-                            id_consumer, action['product'])
-                        if check_add is True:
-                            cantintate_product += 1
+                        if self.marketplace.add_to_cart(consumer_id, action['product']):
+                            quantity_product += 1
                         else:
                             self.marketplace.logging.error(
                                 '{} failed to add to cart, retrying wait'.format(action['product']))
                             time.sleep(self.retry_wait_time)
-                    if action['type'] == "remove":
-                        self.marketplace.remove_from_cart(
-                            id_consumer, action['product'])
-                        cantintate_product += 1
+                    elif action['type'] == "remove":
+                        self.marketplace.remove_from_cart(consumer_id, action['product'])
+                        quantity_product += 1
 
-        cart_list = self.marketplace.place_order(id_consumer)
+        cart_list = self.marketplace.place_order(consumer_id)
         self.marketplace.print_order.acquire()
         for product in cart_list:
             print(self.name, "bought", product)
